@@ -94,7 +94,9 @@ npm run dev:client
 | `npm test` | اختبارات تكامل الصلاحيات (31 اختباراً، على قاعدة `teampulse_test` منفصلة) |
 | `npm run build` | بناء الواجهة إلى `client/dist` |
 
-**الإنتاج:** ابنِ الواجهة، واضبط في `server/.env` القيم `NODE_ENV=production` و`JWT_*_SECRET` (قيم عشوائية طويلة) و`CLIENT_ORIGIN`، ثم شغّل `npm start --prefix server`؛ الخادم يخدم `client/dist` تلقائياً.
+**النشر المجاني (Render + TiDB Cloud):** اتبع [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — ملف [`render.yaml`](render.yaml) جاهز.
+
+**الإنتاج يدوياً:** ابنِ الواجهة، واضبط في `server/.env` القيم `NODE_ENV=production` و`JWT_*_SECRET` (قيم عشوائية طويلة) و`CLIENT_ORIGIN`، ثم شغّل `npm start --prefix server`؛ الخادم يخدم `client/dist` تلقائياً.
 
 ---
 

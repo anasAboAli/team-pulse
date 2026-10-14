@@ -18,8 +18,11 @@ const showPassword = ref(false);
 const loading = ref(false);
 const error = ref('');
 
-/** الدخول السريع — وضع التطوير فقط؛ لا يُضمَّن في نسخة الإنتاج */
-const DEMO_ACCOUNTS = import.meta.env.DEV
+/**
+ * الدخول السريع: يظهر في التطوير، أو في نسخة منشورة عند البناء بـ VITE_DEMO_LOGIN=true
+ * (مناسب لموقع عرض تجريبي فقط — كلمات المرور تُضمَّن في ملفات الواجهة)
+ */
+const DEMO_ACCOUNTS = import.meta.env.DEV || import.meta.env.VITE_DEMO_LOGIN === 'true'
   ? [
       { label: 'مشرف', hint: 'كل الصلاحيات', icon: ShieldCheck, email: 'admin@teampulse.test', password: import.meta.env.VITE_DEMO_ADMIN_PASSWORD },
       { label: 'مدير قسم', hint: 'تقنية المعلومات', icon: UserCog, email: 'manager@teampulse.test', password: import.meta.env.VITE_DEMO_PASSWORD },

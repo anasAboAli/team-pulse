@@ -5,8 +5,11 @@
  *   node db/cli.js rollback  التراجع عن آخر دفعة
  *   node db/cli.js seed      تعبئة البيانات التجريبية (يمسح البيانات الحالية)
  *   node db/cli.js reset     حذف كل الجداول ثم migrate + seed
+ *   node db/cli.js bootstrap للإنتاج: migrate، ثم إن كانت القاعدة فارغة
+ *                            تعبئة تجريبية (SEED_DEMO_DATA=true) أو إنشاء حساب المشرف فقط
  */
 import knex from 'knex';
+import bcrypt from 'bcryptjs';
 import { env } from '../src/config/env.js';
 import { db, knexConfig } from '../src/config/db.js';
 
@@ -46,8 +49,34 @@ async function main() {
       console.log('✔ تمت إعادة بناء قاعدة البيانات وتعبئتها');
       break;
     }
+    case 'bootstrap': {
+      const [, files] = await db.migrate.latest(knexConfig.migrations);
+      console.log(files.length ? `✔ migrations: ${files.join(', ')}` : '✔ القاعدة محدّثة');
+      const { c } = await db('users').count({ c: '*' }).first();
+      if (Number(c) > 0) break;
+
+      // في الإنتاج لا نستخدم كلمات المرور الافتراضية أبداً
+      if (env.isProd && (!process.env.SEED_ADMIN_PASSWORD || (env.seed.demoData && !process.env.SEED_DEMO_PASSWORD))) {
+        throw new Error('يجب ضبط SEED_ADMIN_PASSWORD (و SEED_DEMO_PASSWORD عند SEED_DEMO_DATA=true) قبل أول تشغيل');
+      }
+      if (env.seed.demoData) {
+        await db.seed.run(knexConfig.seeds);
+        console.log('✔ قاعدة فارغة: تمت تعبئة البيانات التجريبية');
+      } else {
+        await db('company_settings').insert({ name: 'شركتي' });
+        await db('users').insert({
+          full_name: 'مشرف النظام',
+          email: env.seed.adminEmail,
+          password_hash: await bcrypt.hash(env.seed.adminPassword, 12),
+          role: 'admin',
+          must_change_password: true,
+        });
+        console.log(`✔ قاعدة فارغة: تم إنشاء حساب المشرف ${env.seed.adminEmail}`);
+      }
+      break;
+    }
     default:
-      console.log('الأوامر المتاحة: create | migrate | rollback | seed | reset');
+      console.log('الأوامر المتاحة: create | migrate | rollback | seed | reset | bootstrap');
   }
 }
 
