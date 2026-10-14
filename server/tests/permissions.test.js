@@ -9,6 +9,7 @@ import request from 'supertest';
 
 process.env.NODE_ENV = 'test';
 process.env.DB_NAME = `${process.env.DB_NAME || 'teampulse'}_test`;
+process.env.DEMO_MODE = 'true';
 
 const { env } = await import('../src/config/env.js');
 const { db, knexConfig } = await import('../src/config/db.js');
@@ -281,5 +282,30 @@ describe('المشرف', () => {
   test('تعطيل الحساب يمنع الدخول', async () => {
     await as('admin').patch(`/api/v1/users/${ids.itEmp2}/status`, { is_active: false });
     assert.equal((await as('itEmp2').get('/api/v1/profile')).status, 401);
+  });
+});
+
+describe('وضع العرض (DEMO_MODE)', () => {
+  test('الحسابات التجريبية لا تُعطَّل ولا تُحذف ولا يُعاد تعيين كلمة مرورها', async () => {
+    const r1 = await as('admin').patch(`/api/v1/users/${ids.itEmp}/status`, { is_active: false });
+    assert.equal(r1.status, 403);
+    assert.equal(r1.body.error.code, 'DEMO_PROTECTED');
+    assert.equal((await as('admin').post(`/api/v1/users/${ids.itEmp}/reset-password`)).status, 403);
+    assert.equal((await as('admin').del(`/api/v1/users/${ids.itManager}`)).status, 403);
+    assert.equal((await as('itManager').put(`/api/v1/users/${ids.itEmp}`, { full_name: 'تغيير', email: 'x@y.test' })).status, 403);
+  });
+
+  test('لا يمكن استبدال المدير التجريبي', async () => {
+    const res = await as('admin').put(`/api/v1/departments/${ids.itDept}/manager`, { manager_id: ids.itEmp2 });
+    assert.equal(res.status, 403);
+  });
+
+  test('الحساب التجريبي لا يغيّر كلمة مروره', async () => {
+    const res = await as('itEmp').put('/api/v1/auth/password', { current_password: env.seed.demoPassword, new_password: 'Changed123' });
+    assert.equal(res.status, 403);
+  });
+
+  test('الحسابات غير التجريبية تُدار بشكل طبيعي', async () => {
+    assert.equal((await as('admin').post(`/api/v1/users/${ids.hrEmp}/reset-password`)).status, 200);
   });
 });

@@ -10,6 +10,7 @@ import { compact, generateTempPassword, hashPassword } from '../../utils/helpers
 import { paginate } from '../../utils/pagination.js';
 import {
   assertEmailFree,
+  assertNotDemoAccount,
   clearHeadship,
   countActiveAdmins,
   findUser,
@@ -63,6 +64,7 @@ async function loadVisibleUser(actor, userId) {
 async function loadManageableUser(actor, userId) {
   const target = await loadVisibleUser(actor, userId);
   if (!canManageUser(actor, target)) throw ApiError.forbidden();
+  assertNotDemoAccount(target);
   return target;
 }
 

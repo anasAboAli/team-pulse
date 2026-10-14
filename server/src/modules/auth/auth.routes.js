@@ -9,7 +9,7 @@ import { validate } from '../../middleware/validate.js';
 import { z, password } from '../../lib/z.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { hashPassword, sha256, verifyPassword } from '../../utils/helpers.js';
-import { getUserDetail } from '../users/users.service.js';
+import { assertNotDemoAccount, getUserDetail } from '../users/users.service.js';
 
 const router = Router();
 
@@ -106,6 +106,7 @@ router.put(
   async (req, res) => {
     const { current_password, new_password } = req.valid.body;
     const user = await db('users').where({ id: req.user.id }).first();
+    assertNotDemoAccount(user);
     if (!(await verifyPassword(current_password, user.password_hash))) {
       throw ApiError.unprocessable('البيانات المدخلة غير صحيحة', { current_password: 'كلمة المرور الحالية غير صحيحة' });
     }

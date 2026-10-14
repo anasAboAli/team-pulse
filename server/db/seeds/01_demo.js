@@ -124,11 +124,8 @@ const CRITERIA = [
 const PRIORITIES = ['low', 'medium', 'medium', 'high', 'high', 'urgent'];
 
 /** الحسابات التجريبية الثلاثة (كلمات المرور من .env) */
-export const DEMO_ACCOUNTS = {
-  admin: env.seed.adminEmail,
-  manager: 'manager@teampulse.test',
-  employee: 'employee@teampulse.test',
-};
+const [, demoManagerEmail, demoEmployeeEmail] = env.demo.emails;
+const DEMO_ACCOUNTS = { manager: demoManagerEmail, employee: demoEmployeeEmail };
 
 /** مهام مفتوحة ثابتة للموظف التجريبي حتى تظهر لوحته بمحتوى في كل الحالات */
 const DEMO_EMPLOYEE_TASKS = [

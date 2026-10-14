@@ -46,6 +46,15 @@ export const env = {
   },
   uploadMaxMb: Number(process.env.UPLOAD_MAX_MB || 10),
   uploadsDir: path.join(SERVER_ROOT, 'uploads'),
+  // وضع العرض: الحسابات التجريبية محمية من التعديل والتعطيل والحذف وتغيير كلمة المرور
+  demo: {
+    mode: flag(process.env.DEMO_MODE),
+    emails: [
+      (process.env.SEED_ADMIN_EMAIL || 'admin@teampulse.test').toLowerCase(),
+      'manager@teampulse.test',
+      'employee@teampulse.test',
+    ],
+  },
   seed: {
     demoData: flag(process.env.SEED_DEMO_DATA),
     adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@teampulse.test',

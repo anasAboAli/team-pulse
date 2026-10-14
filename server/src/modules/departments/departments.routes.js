@@ -7,7 +7,7 @@ import { canViewDepartment, isAdmin, isEmployee } from '../../policies/index.js'
 import { ApiError } from '../../utils/ApiError.js';
 import { logActivity, notify } from '../../utils/events.js';
 import { compact, percent, toNumber } from '../../utils/helpers.js';
-import { clearHeadship, findUser, setDepartmentHead, toPublicUser, usersQuery } from '../users/users.service.js';
+import { assertNotDemoAccount, clearHeadship, findUser, setDepartmentHead, toPublicUser, usersQuery } from '../users/users.service.js';
 
 const router = Router();
 
@@ -149,6 +149,8 @@ router.put(
   async (req, res) => {
     const dept = await loadDepartment(req.valid.params.id);
     const { manager_id } = req.valid.body;
+    if (dept.manager_id && dept.manager_id !== manager_id) assertNotDemoAccount(await findUser(dept.manager_id));
+    if (manager_id) assertNotDemoAccount(await findUser(manager_id));
 
     await db.transaction(async (trx) => {
       if (manager_id === null) {

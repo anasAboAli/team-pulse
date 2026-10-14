@@ -44,6 +44,13 @@ services:
       - key: SEED_DEMO_PASSWORD
         sync: false
 
-      # أزرار الدخول السريع في صفحة الدخول (اختياري — لموقع عرض تجريبي فقط)
+      # موقع عرض: أزرار الدخول السريع + حماية الحسابات التجريبية من التعديل والحذف
+      - key: DEMO_MODE
+        value: "true"
       - key: VITE_DEMO_LOGIN
-        value: "false"
+        value: "true"
+      # يجب أن تطابق SEED_ADMIN_PASSWORD و SEED_DEMO_PASSWORD (تُضمَّن في ملفات الواجهة)
+      - key: VITE_DEMO_ADMIN_PASSWORD
+        sync: false
+      - key: VITE_DEMO_PASSWORD
+        sync: false

@@ -1,4 +1,5 @@
 import { db } from '../../config/db.js';
+import { env } from '../../config/env.js';
 import { ApiError } from '../../utils/ApiError.js';
 import { toNumber } from '../../utils/helpers.js';
 
@@ -106,6 +107,13 @@ export async function countActiveAdmins(conn = db, excludeId = null) {
 
 export async function revokeUserTokens(conn, userId) {
   await conn('refresh_tokens').where({ user_id: userId }).whereNull('revoked_at').update({ revoked_at: new Date() });
+}
+
+/** في وضع العرض: يمنع أي تغيير يكسر الدخول بالحسابات التجريبية */
+export function assertNotDemoAccount(user) {
+  if (env.demo.mode && user && env.demo.emails.includes(String(user.email).toLowerCase())) {
+    throw ApiError.forbidden('هذا حساب تجريبي محمي في وضع العرض، لا يمكن تعديله أو تعطيله أو حذفه', 'DEMO_PROTECTED');
+  }
 }
 
 export async function assertEmailFree(email, exceptId = null, conn = db) {
