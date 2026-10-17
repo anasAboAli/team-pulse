@@ -8,7 +8,7 @@
 | الخادم | Node.js · Express 5 · Knex · MySQL / MariaDB |
 | الأمان | JWT (access + refresh في كوكي httpOnly) · bcrypt · Zod · Helmet · Rate limit |
 
-> 🌐 **نسخة العرض:** على Vercel (الرابط يُضاف بعد النشر) — استخدم أزرار «دخول تجريبي سريع».
+> 🌐 **نسخة العرض:** <https://team-pulse-amber-five.vercel.app> — استخدم أزرار «دخول تجريبي سريع».
 >
 > المواصفات الكاملة والقرارات في [docs/PROJECT_SPEC.md](docs/PROJECT_SPEC.md)، ودليل النشر في [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
