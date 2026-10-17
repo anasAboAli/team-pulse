@@ -1,9 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { Router } from 'express';
 import { db } from '../../config/db.js';
 import { authorize } from '../../middleware/auth.js';
-import { PRIVATE_DIR, removeUpload, uploadAttachments } from '../../middleware/upload.js';
+import { PRIVATE_DIR, removeUpload, sendUpload, uploadAttachments } from '../../middleware/upload.js';
 import { validate } from '../../middleware/validate.js';
 import { z, boolish, id, idParam, optDate, optText, pagination } from '../../lib/z.js';
 import { canAssignTask, canManageTask, emptyScope, isAdmin, isEmployee, isManager } from '../../policies/index.js';
@@ -335,9 +333,7 @@ async function loadAttachment(actor, attachmentId) {
 
 attachmentsRouter.get('/:id/download', validate({ params: idParam }), async (req, res) => {
   const { file } = await loadAttachment(req.user, req.valid.params.id);
-  const filePath = path.join(PRIVATE_DIR, path.basename(file.stored_name));
-  if (!fs.existsSync(filePath)) throw ApiError.notFound('الملف غير موجود على الخادم');
-  res.download(filePath, file.original_name);
+  await sendUpload(res, PRIVATE_DIR, file.stored_name, { downloadName: file.original_name });
 });
 
 attachmentsRouter.delete('/:id', validate({ params: idParam }), async (req, res) => {

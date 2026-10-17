@@ -13,7 +13,8 @@ export const knexConfig = {
   },
   pool: {
     min: 0,
-    max: 10,
+    // كل نسخة serverless تفتح مجمّعها الخاص، فنبقيه صغيراً
+    max: env.isVercel ? 2 : 10,
     afterCreate(conn, done) {
       conn.query("SET time_zone = '+00:00'", (err) => done(err, conn));
     },

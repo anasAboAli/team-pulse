@@ -6,7 +6,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { env, SERVER_ROOT } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import { PUBLIC_DIR } from './middleware/upload.js';
+import { PUBLIC_DIR, sendUpload } from './middleware/upload.js';
 import apiRoutes from './routes.js';
 
 export function createApp() {
@@ -20,7 +20,11 @@ export function createApp() {
   app.use(cookieParser());
 
   // الصور العامة فقط (الشعار والصور الشخصية) — المرفقات تُنزَّل عبر API محمي
-  app.use('/uploads/public', express.static(PUBLIC_DIR, { maxAge: '7d', index: false }));
+  if (env.storageDriver === 'db') {
+    app.get('/uploads/public/:name', (req, res) => sendUpload(res, PUBLIC_DIR, req.params.name, { maxAge: 7 * 86400_000 }));
+  } else {
+    app.use('/uploads/public', express.static(PUBLIC_DIR, { maxAge: '7d', index: false }));
+  }
 
   app.use('/api/v1', apiRoutes);
   app.use('/api', notFoundHandler);

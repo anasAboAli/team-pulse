@@ -146,6 +146,7 @@ export async function seed(knex) {
     'evaluation_criteria',
     'task_comments',
     'task_attachments',
+    'file_blobs',
     'tasks',
     'refresh_tokens',
     'users',

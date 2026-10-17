@@ -33,9 +33,12 @@ export const env = {
   isProd: nodeEnv === 'production',
   isTest: nodeEnv === 'test',
   port: Number(process.env.PORT || 4000),
-  // Render يضبط RENDER_EXTERNAL_URL تلقائياً
-  clientOrigin: process.env.CLIENT_ORIGIN || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173',
-  // خلف وكيل عكسي (Render) لقراءة IP الحقيقي والكوكي الآمن
+  // Vercel يضبط VERCEL و VERCEL_PROJECT_PRODUCTION_URL تلقائياً
+  isVercel: !!process.env.VERCEL,
+  clientOrigin:
+    process.env.CLIENT_ORIGIN ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:5173'),
+  // خلف وكيل عكسي (Vercel) لقراءة IP الحقيقي والكوكي الآمن
   trustProxy: process.env.TRUST_PROXY ? flag(process.env.TRUST_PROXY) : nodeEnv === 'production',
   db: databaseConfig(),
   jwt: {
@@ -44,7 +47,10 @@ export const env = {
     accessTtl: process.env.ACCESS_TOKEN_TTL || '15m',
     refreshDays: Number(process.env.REFRESH_TOKEN_DAYS || 7),
   },
-  uploadMaxMb: Number(process.env.UPLOAD_MAX_MB || 10),
+  // دوال Vercel ترفض الطلبات الأكبر من 4.5MB
+  uploadMaxMb: Number(process.env.UPLOAD_MAX_MB || (process.env.VERCEL ? 4 : 10)),
+  // disk: مجلد uploads | db: جدول file_blobs (Vercel بلا قرص دائم)
+  storageDriver: process.env.STORAGE_DRIVER || (process.env.VERCEL ? 'db' : 'disk'),
   uploadsDir: path.join(SERVER_ROOT, 'uploads'),
   // وضع العرض: الحسابات التجريبية محمية من التعديل والتعطيل والحذف وتغيير كلمة المرور
   demo: {
